@@ -2,6 +2,9 @@ package k8smanage.k8smanage.controller;
 
 import java.net.URI;
 import java.util.List;
+import jakarta.validation.Valid;
+import k8smanage.k8smanage.dto.reponse.RoleResponse;
+import k8smanage.k8smanage.dto.request.RoleCreateRequest;
 import k8smanage.k8smanage.entity.RoleEntity;
 import k8smanage.k8smanage.service.RoleService;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +28,9 @@ public class RoleController {
     }
 
     @PostMapping
-    public ResponseEntity<RoleEntity> create(@RequestBody RoleEntity role) {
-        RoleEntity created = roleService.createRole(role);
-        return ResponseEntity.created(URI.create("/api/roles/" + created.getId())).body(created);
+    public ResponseEntity<RoleResponse> create(@Valid @RequestBody RoleCreateRequest request) {
+        RoleResponse response = roleService.createRoleFromRequest(request);
+        return ResponseEntity.created(URI.create("/api/roles/" + response.getId())).body(response);
     }
 
     @PutMapping("/{id}")
