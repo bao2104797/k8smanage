@@ -1,5 +1,6 @@
 package k8smanage.k8smanage.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,9 +9,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -37,6 +42,10 @@ public class UserEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private RoleEntity role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<UserTeamEntity> userTeams = new LinkedHashSet<>();
 
 }
 
