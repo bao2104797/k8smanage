@@ -2,6 +2,9 @@ package k8smanage.k8smanage.controller;
 
 import java.net.URI;
 import java.util.List;
+import jakarta.validation.Valid;
+import k8smanage.k8smanage.dto.reponse.UserResponse;
+import k8smanage.k8smanage.dto.request.UserCreateRequest;
 import k8smanage.k8smanage.entity.UserEntity;
 import k8smanage.k8smanage.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +28,9 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserEntity> create(@RequestBody UserEntity user) {
-        UserEntity created = userService.createUser(user);
-        return ResponseEntity.created(URI.create("/api/users/" + created.getId())).body(created);
+    public ResponseEntity<UserResponse> create(@Valid @RequestBody UserCreateRequest request) {
+        UserResponse response = userService.createUserFromRequest(request);
+        return ResponseEntity.created(URI.create("/api/users/" + response.getId())).body(response);
     }
 
     @PutMapping("/{id}")

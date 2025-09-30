@@ -2,8 +2,11 @@ package k8smanage.k8smanage.service.impl;
 
 import java.util.List;
 import java.util.Optional;
+import k8smanage.k8smanage.dto.reponse.UserResponse;
+import k8smanage.k8smanage.dto.request.UserCreateRequest;
 import k8smanage.k8smanage.entity.RoleEntity;
 import k8smanage.k8smanage.entity.UserEntity;
+import k8smanage.k8smanage.mapper.UserMapper;
 import k8smanage.k8smanage.repository.RoleRepository;
 import k8smanage.k8smanage.repository.UserRepository;
 import k8smanage.k8smanage.service.UserService;
@@ -16,10 +19,36 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.userMapper = userMapper;
+    }
+
+    @Override
+    public UserResponse createUserFromRequest(UserCreateRequest request) {
+        // Kiểm tra trùng username
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("Username đã tồn tại: " + request.getUsername());
+        }
+        
+        // Chuyển đổi DTO -> Entity
+        UserEntity toSave = userMapper.toEntity(request);
+        
+        // Xử lý role nếu có
+        if (request.getRoleId() != null) {
+            RoleEntity role = roleRepository.findById(request.getRoleId())
+                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại với ID: " + request.getRoleId()));
+            toSave.setRole(role);
+        }
+        
+        // Lưu vào database
+        UserEntity saved = userRepository.save(toSave);
+        
+        // Chuyển đổi Entity -> Response DTO
+        return userMapper.toResponse(saved);
     }
 
     @Override
