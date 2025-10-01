@@ -6,7 +6,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.*;
@@ -25,10 +24,12 @@ public class UserTeamRoleEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_team_id", nullable = false, unique = true)
-    UserTeamEntity userTeam;
+    @Column(name = "role_name", nullable = false, unique = true, length = 100)
+    String roleName; // OWNER, MEMBER
 
     @Column(name = "description", length = 500)
     String description;
+
+    @OneToOne(mappedBy = "userTeamRole", fetch = FetchType.LAZY)
+    UserTeamEntity userTeam;
 }
