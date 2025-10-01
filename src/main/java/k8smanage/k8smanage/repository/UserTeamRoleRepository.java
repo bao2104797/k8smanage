@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserTeamRoleRepository extends JpaRepository<UserTeamRoleEntity, Long> {
-    Optional<UserTeamRoleEntity> findByUserTeamId(Long userTeamId);
+    Optional<UserTeamRoleEntity> findByRoleName(String roleName);
+    boolean existsByRoleName(String roleName);
 }

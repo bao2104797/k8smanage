@@ -28,7 +28,7 @@ public class RoleEntity {
     private Long id;
 
     @Column(name = "code", nullable = false, unique = true, length = 100)
-    private String code;
+    private String code; // ADMIN, USER
 
     @Column(name = "name", nullable = false, length = 255)
     private String name;

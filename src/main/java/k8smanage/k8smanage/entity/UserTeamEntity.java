@@ -1,20 +1,8 @@
 package k8smanage.k8smanage.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -37,17 +25,11 @@ public class UserTeamEntity {
     @JoinColumn(name = "team_id", nullable = false)
     TeamEntity team;
 
-    // Các thuộc tính bổ sung cho bảng trung gian
-    @Column(name = "joined_at")
-    LocalDateTime joinedAt;
-
-    @Column(name = "role_in_team", length = 50)
-    String roleInTeam; // Ví dụ: "MEMBER", "ADMIN", "OWNER"
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_team_role_id", nullable = false, unique = true)
+    UserTeamRoleEntity userTeamRole;
 
     @Column(name = "is_active")
     @Builder.Default
     Boolean isActive = true;
-
-    @OneToOne(mappedBy = "userTeam", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    UserTeamRoleEntity userTeamRole;
 }

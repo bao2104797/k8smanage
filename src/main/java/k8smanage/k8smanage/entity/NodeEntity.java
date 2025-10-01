@@ -1,18 +1,8 @@
 package k8smanage.k8smanage.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -29,6 +19,9 @@ public class NodeEntity {
 
     @Column(name = "name", nullable = false, length = 255)
     String name;
+
+    @Column(name = "type", nullable = false, length = 255)
+    String type; // MASTER, WORKER
 
     @Column(name = "ip", nullable = false, length = 50)
     String ip;
@@ -47,9 +40,6 @@ public class NodeEntity {
 
     @Column(name = "description", length = 500)
     String description;
-
-    @Column(name = "created_at")
-    LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cluster_id", nullable = false)

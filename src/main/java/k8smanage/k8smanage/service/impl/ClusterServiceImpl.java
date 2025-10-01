@@ -1,9 +1,10 @@
 package k8smanage.k8smanage.service.impl;
 
-import java.util.List;
-import java.util.Optional;
+import k8smanage.k8smanage.dto.reponse.ClusterResponse;
+import k8smanage.k8smanage.dto.request.ClusterCreateRequest;
 import k8smanage.k8smanage.entity.ClusterEntity;
 import k8smanage.k8smanage.entity.TeamEntity;
+import k8smanage.k8smanage.mapper.ClusterMapper;
 import k8smanage.k8smanage.repository.ClusterRepository;
 import k8smanage.k8smanage.repository.TeamRepository;
 import k8smanage.k8smanage.service.ClusterService;
@@ -16,79 +17,34 @@ public class ClusterServiceImpl implements ClusterService {
 
     private final ClusterRepository clusterRepository;
     private final TeamRepository teamRepository;
+    private final ClusterMapper clusterMapper;
 
-    public ClusterServiceImpl(ClusterRepository clusterRepository, TeamRepository teamRepository) {
+    public ClusterServiceImpl(ClusterRepository clusterRepository, TeamRepository teamRepository,
+                              ClusterMapper clusterMapper) {
         this.clusterRepository = clusterRepository;
         this.teamRepository = teamRepository;
+        this.clusterMapper = clusterMapper;
     }
 
     @Override
-    public ClusterEntity createCluster(ClusterEntity cluster) {
-        if (clusterRepository.existsByName(cluster.getName())) {
-            throw new IllegalArgumentException("Tên cluster đã tồn tại: " + cluster.getName());
+    public ClusterResponse createClusterFromRequest(ClusterCreateRequest request) {
+        // Kiểm tra tên cluster đã tồn tại chưa
+        if (clusterRepository.existsByName(request.getName())) {
+            throw new IllegalArgumentException("Tên cluster đã tồn tại: " + request.getName());
         }
-        
-        // Kiểm tra team tồn tại
-        if (cluster.getTeam() != null && cluster.getTeam().getId() != null) {
-            TeamEntity team = teamRepository.findById(cluster.getTeam().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Team không tồn tại với ID: " + cluster.getTeam().getId()));
-            cluster.setTeam(team);
-        }
-        
-        return clusterRepository.save(cluster);
+
+        // Kiểm tra team có tồn tại không
+        TeamEntity team = teamRepository.findById(request.getTeamId())
+                .orElseThrow(() -> new IllegalArgumentException("Team không tồn tại với ID: " + request.getTeamId()));
+
+        // Tạo cluster entity
+        ClusterEntity clusterEntity = clusterMapper.toEntity(request);
+        clusterEntity.setTeam(team);
+
+        // Lưu cluster
+        ClusterEntity savedCluster = clusterRepository.save(clusterEntity);
+
+        return clusterMapper.toResponse(savedCluster);
     }
 
-    @Override
-    public ClusterEntity updateCluster(Long id, ClusterEntity cluster) {
-        ClusterEntity existing = clusterRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Cluster không tồn tại với ID: " + id));
-        
-        existing.setName(cluster.getName());
-        existing.setDescription(cluster.getDescription());
-        existing.setStatus(cluster.getStatus());
-        
-        // Cập nhật team nếu có
-        if (cluster.getTeam() != null && cluster.getTeam().getId() != null) {
-            TeamEntity team = teamRepository.findById(cluster.getTeam().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Team không tồn tại với ID: " + cluster.getTeam().getId()));
-            existing.setTeam(team);
-        }
-        
-        return clusterRepository.save(existing);
-    }
-
-    @Override
-    public void deleteCluster(Long id) {
-        clusterRepository.deleteById(id);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<ClusterEntity> getClusterById(Long id) {
-        return clusterRepository.findById(id);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<ClusterEntity> getClusterByName(String name) {
-        return clusterRepository.findByName(name);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ClusterEntity> getClustersByTeamId(Long teamId) {
-        return clusterRepository.findByTeamId(teamId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ClusterEntity> getClustersByStatus(String status) {
-        return clusterRepository.findByStatus(status);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ClusterEntity> getAllClusters() {
-        return clusterRepository.findAll();
-    }
 }

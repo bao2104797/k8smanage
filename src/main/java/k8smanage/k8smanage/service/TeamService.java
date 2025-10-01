@@ -1,14 +1,8 @@
 package k8smanage.k8smanage.service;
 
-import java.util.List;
-import java.util.Optional;
-import k8smanage.k8smanage.entity.TeamEntity;
+import k8smanage.k8smanage.dto.reponse.TeamResponse;
+import k8smanage.k8smanage.dto.request.TeamCreateRequest;
 
 public interface TeamService {
-    TeamEntity createTeam(TeamEntity team);
-    TeamEntity updateTeam(Long id, TeamEntity team);
-    void deleteTeam(Long id);
-    Optional<TeamEntity> getTeamById(Long id);
-    Optional<TeamEntity> getTeamByName(String name);
-    List<TeamEntity> getAllTeams();
+    TeamResponse createTeamFromRequest(TeamCreateRequest request);
 }
